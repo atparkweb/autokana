@@ -80,11 +80,12 @@ jQuery.fn.autokana = function() {
 		["A", "ア"], ["I", "イ"], ["U", "ウ"], ["E", "エ"], ["O", "オ"]
 	];
 
-
-
+	
+	
 	// upon entering a new letter, do roumaji to kana conversion if possible and set curor location
 	this.keyup(function() {
 		var input_field_string = this.value;
+		var speed_offset_error = 0;
 
 		// iterate through kana mapping and modify the input string if possible
 		for (var i=0; i<kana.length; i++) {
@@ -102,13 +103,21 @@ jQuery.fn.autokana = function() {
 			this.value = input_field_string;
 			var new_string = input_field_string.split("");
 			var tmp_new_length = new_string.length;
-
+				
+			// too fast typing cursor position error fix
+			for (var i=0; i<new_string.length; i++) {
+				var char_value = new_string[i].charCodeAt(0);
+				if ((char_value >= 65 && char_value <= 90) || (char_value >= 97 && char_value <= 122))
+					speed_offset_error = 1;
+			}
+			
+			// calculate cursor position
 			for (var i=(original_string.length - 1); i>=0; i--) {
 				var j = tmp_new_length - 1;
 
 				if (original_string[i] != new_string[j]) {
 					var offset = original_string.length - i;
-					var current_position = new_string.length - offset + 1;
+					var current_position = new_string.length - offset + 1 + speed_offset_error;
 					break;
 				}
 
@@ -140,7 +149,6 @@ jQuery.fn.setCursorPosition = function(current_position) {
         }
     });
 };
-
 
 
 
